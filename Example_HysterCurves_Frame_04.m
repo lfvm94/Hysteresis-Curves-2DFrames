@@ -1,4 +1,4 @@
-% Example_HysterCurves_Frame_03
+% Example_HysterCurves_Frame_04
 %----------------------------------------------------------------
 % PURPOSE 
 %    To compute the hysteresis curves for a
@@ -14,12 +14,16 @@
 clc
 clear all
 
-nnodes=6;
-nbars=5;
+nnodes=10;
+nbars=9;
 
 %% Materials
 % f'c of each element
 fpc=[300;
+    300;
+    250;
+    250;
+    250;
     300;
     250;
     250;
@@ -33,6 +37,10 @@ end
 
 %% Geometry/Topology
 dimensions=[40 40;
+            30 60;
+            40 40;
+            30 60;
+            40 40;
             30 60;
             40 40;
             30 60;
@@ -55,14 +63,15 @@ coordxy=[0 0;
          500 0;
          500 300;
          800 0;
-         800 300]; 
+         800 300;
+         1400 0;
+         1400 300;
+         1600 0;
+         1600 300]; 
 
 % final and initial nodes for each element
-ni=[1;2;3;4;5];
-nf=[2;4;4;6;6];
-
-l=sqrt((coordxy(nf,1)-coordxy(ni,1)).^2+...
-      (coordxy(nf,2)-coordxy(ni,2)).^2); % bar-length vector
+ni=[1;2;3;4;5;6;7;8; 9];
+nf=[2;4;4;6;6;8;8;10;10];
 
 % prescribed boudnary conditions [dof, displacement]
 bc=[1 0;
@@ -73,23 +82,39 @@ bc=[1 0;
     9 0;
     13 0;
     14 0;
-    15 0];
+    15 0;
+    19 0;
+    20 0;
+    21 0;
+    25 0;
+    26 0;
+    27 0];
 
 supports=[1 "Fixed" "Fixed";
            2 "Fixed" "Fixed";
            3 "Fixed" "Fixed";
            4 "Fixed" "Fixed";
-           5 "Fixed" "Fixed"];
+           5 "Fixed" "Fixed";
+           6 "Fixed" "Fixed";
+           7 "Fixed" "Fixed";
+           8 "Fixed" "Fixed";
+           9 "Fixed" "Fixed"];
    
 type_elem=[1 "Col";
            2 "Beam";
            3 "Col";
            4 "Beam";
-           5 "Col"];
+           5 "Col";
+           6 "Beam";
+           7 "Col";
+           8 "Beam";
+           9 "Col"];
        
 %% Loads       
-beams_LL=[1 -60; % Uniformly distributed loads over the beams
-          2 -60];
+beams_LL=[1 -30; % Uniformly distributed loads over the beams
+          2 -30;
+          3 -20;
+          4 -20];
 
 elemcols=[];
 elembeams=[];
@@ -116,7 +141,11 @@ Mp=[7680000 7680000;
     6490000 6490000;
     8363000 8976940;
     5490000 5490000;
-    8680000 8680000]; %Kg-cm
+    8680000 8680000;
+    6490000 6490000;
+    9363000 9976940;
+    5490000 5490000;
+    9680000 9680000]; %Kg-cm
 
 % Initial lateral forces to increment for the Pushover analysis
 LatForces=[1500];
@@ -128,11 +157,11 @@ Hfloors=[300];
 
 %% Hysteresis curves
 
-[WDIf,KUDIf,DIf]=hysterCurveEB2DFrames(qbarxy,A,Mp,E,I,coordxy,ni,nf,...
-supports,bc,LatForces,Hfloors,dofForces,0.01,3,1)
+%[WDIf,KUDIf,DIf]=hysterCurveEB2DFrames(qbarxy,A,Mp,E,I,coordxy,ni,nf,...
+%supports,bc,LatForces,Hfloors,dofForces,0.01,5,1)
 
 %DIf=hysterCurveClough2DFrames(qbarxy,A,Mp,E,I,coordxy,ni,nf,...
-%supports,bc,LatForces,Hfloors,dofForces,0.01,4,1)
+%supports,bc,LatForces,Hfloors,dofForces,0.01,8,1)
 
-%DIf=hysterCurveTakeda2DFrames(qbarxy,A,Mp,E,I,coordxy,ni,nf,...
-%supports,bc,LatForces,Hfloors,dofForces,0.01,5,1)
+DIf=hysterCurveTakeda2DFrames(qbarxy,A,Mp,E,I,coordxy,ni,nf,...
+supports,bc,LatForces,Hfloors,dofForces,0.01,8,1)

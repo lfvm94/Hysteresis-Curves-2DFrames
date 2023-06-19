@@ -1,9 +1,10 @@
-function [WDIf,KUDIf]=hysterCurveEB2DFrames(qbarxy,A,Mp,E,I,coordxy,ni,nf,...
-    supports,bc,seismicForces,Hfloors,dofSeismicForces,dL,ncycles,hcfloor)
+function [WDIf,KUDIf,DIf]=hysterCurveEB2DFrames(qbarxy,A,Mp,E,I,...
+    coordxy,ni,nf,supports,bc,seismicForces,Hfloors,dofSeismicForces,dL,...
+    ncycles,hcfloor)
 
 %------------------------------------------------------------------------
 % Syntax:
-% [WDIf,KUDIf]=hysterCurveEB2DFrames(qbarxy,A,Mp,E,I,coordxy,ni,nf,...
+% [WDIf,KUDIf,DIf]=hysterCurveEB2DFrames(qbarxy,A,Mp,E,I,coordxy,ni,nf,...
 % supports,bc,seismicForces,Hfloors,dofSeismicForces,dL,ncycles,hcfloor)
 %
 %------------------------------------------------------------------------
@@ -70,6 +71,8 @@ function [WDIf,KUDIf]=hysterCurveEB2DFrames(qbarxy,A,Mp,E,I,coordxy,ni,nf,...
 %                                version of the original Park-Ang DI (see
 %                                Doc)
 %
+%         DIf:                   is the Low-Fatigue Damage Index
+%
 %------------------------------------------------------------------------
 % LAST MODIFIED: L.F.Veduzco    2023-06-17
 %                Faculty of Engineering
@@ -133,20 +136,24 @@ end
 Hf=sum(Hfloors(1:hcfloor)); % accumulated height of the floor in question
 beta=0.1; % Factor that considers the cyclic loading effect
 du=0.04*Hf; 
-dy=dg(hcfloor,2);
-Fy=fg(hcfloor,2);
-dm=max(dg(hcfloor,:)); 
+
+% For the right half-cycle:
+dy=dispHistFloor1(hcfloor,2); 
+Fy=forceHistFloor1(hcfloor,2);
+dm=max(dispHistFloor1(hcfloor,:)); 
 c=1;
 %% Wang Park-Ang DI
 sumE=0;
 Eiv=[];
 Et=2*Fy*dy;
+dim=dispHistFloor1(hcfloor,3);
 for i=1:ncycles
-    dim=max(dg(hcfloor,2:2*i+1));
     if i==1
         Ei=2.5*Fy*(dim-dy);
     else
-        Fn=fg(hcfloor,2*i);
+        ki=forceHistFloor1(hcfloor,2*i)/...
+            (dispHistFloor1(hcfloor,2*i)-dg(hcfloor,6*i-5));
+        Fn=ki*dim;
         Ei=2.5*Fn*(dim-dy);
     end
     Eiv=[Eiv,Ei];
@@ -164,12 +171,23 @@ for i=1:ncycles
     if i==1
         Ei=2.5*Fy*(dim-dy);
     else
-        Fn=fg(hcfloor,2*i);
-        Ei=2*Fn*(dim-dy);
+        ki=forceHistFloor1(hcfloor,2*i)/...
+            (dispHistFloor1(hcfloor,2*i)-dg(hcfloor,6*i-5));
+        Fn=ki*dim;
+        Ei=2.5*Fn*(dim-dy);
     end
     sumNh=sumNh+(Ei/(Fy*(du-dy)))^c;
 end
 KUDIf=(1-beta)*sumN1+beta*sumE/(Fy*(du-dy));
+
+%% Low-Cycle Fatigue Damage Index
+DIf=0;
+duy=du-dy;
+dmy=dm-dy;
+b=1.6;
+for i=1:ncycles
+    DIf=DIf+(dmy/duy)^b;
+end
 
 %% Plots
 if hcfloor<=nfloors && hcfloor>0

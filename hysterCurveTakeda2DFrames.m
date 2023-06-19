@@ -1,8 +1,8 @@
-function hysterCurveTakeda2DFrames(qbarxy,A,Mp,E,I,coordxy,ni,nf,...
+function [DIf]=hysterCurveTakeda2DFrames(qbarxy,A,Mp,E,I,coordxy,ni,nf,...
     supports,bc,seismicForces,Hfloors,dofSeismicForces,dL,ncycles,hcfloor)
 %------------------------------------------------------------------------
 % Syntax:
-% hysterCurveTakeda2DFrames(qbarxy,A,Mp,E,I,coordxy,ni,nf,...
+% DIf=hysterCurveTakeda2DFrames(qbarxy,A,Mp,E,I,coordxy,ni,nf,...
 % supports,bc,seismicForces,Hfloors,dofSeismicForces,dL,ncycles,hcfloor)
 %
 %------------------------------------------------------------------------
@@ -61,6 +61,8 @@ function hysterCurveTakeda2DFrames(qbarxy,A,Mp,E,I,coordxy,ni,nf,...
 
 %         hcfloor:               floor of interest for the computation of
 %                                the hysteresis curves
+%
+% OUTPUT:  DIf:                  is the Low-Fatigue Damage Index
 %
 %------------------------------------------------------------------------
 % LAST MODIFIED: L.F.Veduzco    2023-06-17
@@ -129,6 +131,23 @@ for i=1:ncycles
         dg=[dg,dispHistFloor1(:,i+1:i+2),ulir,dil];
         fg=[fg,forceHistFloor1(:,i+1:i+2),zerov,fil];
     end
+end
+
+%% Cumulative Damage Indices
+Hf=sum(Hfloors(1:hcfloor)); % accumulated height of the floor in question
+du=0.04*Hf; 
+
+% For the right half-cycle:
+dy=dispHistFloor1(hcfloor,2); 
+dm=max(dispHistFloor1(hcfloor,:)); 
+
+%% Low-Cycle Fatigue Damage Index
+DIf=0;
+duy=du-dy;
+dmy=dm-dy;
+b=1.6;
+for i=1:ncycles
+    DIf=DIf+(dmy/duy)^b;
 end
 
 %% Plots
