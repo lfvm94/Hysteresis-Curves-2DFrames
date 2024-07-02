@@ -62,7 +62,8 @@ function [DIf]=hysterCurveTakeda2DFrames(qbarxy,A,Mp,E,I,coordxy,ni,nf,...
 %         hcfloor:               floor of interest for the computation of
 %                                the hysteresis curves
 %
-% OUTPUT:  DIf:                  is the Low-Fatigue Damage Index
+% OUTPUT: DIf:                   is the Low-Fatigue Damage Index for the
+%                                floor in question (hcfloor)
 %
 %------------------------------------------------------------------------
 % LAST MODIFIED: L.F.Veduzco    2023-06-17

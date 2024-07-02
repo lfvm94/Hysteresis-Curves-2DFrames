@@ -71,7 +71,8 @@ function [WDIf,KUDIf,DIf]=hysterCurveEB2DFrames(qbarxy,A,Mp,E,I,...
 %                                version of the original Park-Ang DI (see
 %                                Doc)
 %
-%         DIf:                   is the Low-Fatigue Damage Index
+%         DIf:                   is the Low-Fatigue Damage Index for the
+%                                floor in question (hcfloor)
 %
 %------------------------------------------------------------------------
 % LAST MODIFIED: L.F.Veduzco    2023-06-17
